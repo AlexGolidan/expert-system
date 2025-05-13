@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результат диагностики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1><i class="fas fa-diagnoses"></i> Результат диагностики</h1>
+    <div class="result-container">
+        <p><i class="fas fa-tractor"></i> <strong>Культура:</strong> {{ crop }}</p>
+        <p><i class="fas fa-bug"></i> <strong>Симптомы:</strong> {{ symptoms | join(", ") }}</p>
+        <p><i class="fas fa-prescription-bottle-alt"></i> <strong>Результат:</strong> {{ result }}</p>
+        
+        <!-- Диаграмма -->
+        <h2><i class="fas fa-chart-pie"></i> Вероятность болезней/вредителей</h2>
+        <div class="chart-container">
+            <canvas id="diseaseChart"></canvas>
+        </div>
+        
+        <a href="/"><i class="fas fa-arrow-left"></i> Вернуться к форме</a>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('diseaseChart').getContext('2d');
+        const probabilities = {{ probabilities | tojson }};
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(probabilities),
+                datasets: [{
+                    label: 'Вероятность (%)',
+                    data: Object.values(probabilities),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: 'Montserrat'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.raw + '%';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
