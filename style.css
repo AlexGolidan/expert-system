@@ -83,28 +83,35 @@ select:hover {
 }
 
 button.submit-btn {
-    background: linear-gradient(45deg, #a8e063, #56ab2f);
+    background: linear-gradient(45deg, #a8e063, #2c6e49);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 15px 40px;
     cursor: pointer;
-    border-radius: 25px;
-    font-size: 1.1em;
+    border-radius: 30px;
+    font-size: 1.3em;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
     z-index: 5;
 }
 
 button.submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #56ab2f, #a8e063);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(45deg, #56ab2f, #1a472f);
+    animation: pulse 1.5s infinite;
 }
 
 button.submit-btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
 #questions {
@@ -196,7 +203,8 @@ button.submit-btn:active {
 
     button.submit-btn {
         width: 100%;
-        font-size: 16px;
+        font-size: 1.2em;
+        padding: 12px 30px;
     }
 
     #current-question {
