@@ -35,6 +35,7 @@
         <p><strong>Культура:</strong> <span id="result-crop"></span></p>
         <p><strong>Подтверждённые симптомы:</strong> <span id="result-symptoms"></span></p>
         <p><strong>Диагноз:</strong> <span id="result-diagnosis"></span></p>
+        <p><strong>Рекомендация:</strong> <span id="result-recommendation" class="recommendation"></span></p>
         <div class="chart-container">
             <canvas id="probability-chart"></canvas>
         </div>
@@ -165,22 +166,22 @@
 
         const diagnosisMap = {
             'подсолнечник': {
-                'тля': 'Вредитель: тля\nРекомендация: опрыскивание имидаклопридом в период вегетации.',
-                'подсолнечниковая огневка': 'Вредитель: подсолнечниковая огневка\nРекомендация: опрыскивание дельтаметрином в начале цветения.',
-                'альтернариоз': 'Болезнь: альтернариоз\nРекомендация: опрыскивание азоксистробином.',
-                'склеротиниоз': 'Болезнь: склеротиниоз\nРекомендация: обработка тебуконазолом и удаление пораженных частей.'
+                'тля': { diagnosis: 'Вредитель: тля', recommendation: 'Опрыскивание имидаклопридом в период вегетации.' },
+                'подсолнечниковая огневка': { diagnosis: 'Вредитель: подсолнечниковая огневка', recommendation: 'Опрыскивание дельтаметрином в начале цветения.' },
+                'альтернариоз': { diagnosis: 'Болезнь: альтернариоз', recommendation: 'Опрыскивание азоксистробином.' },
+                'склеротиниоз': { diagnosis: 'Болезнь: склеротиниоз', recommendation: 'Обработка тебуконазолом и удаление пораженных частей.' }
             },
             'рапс': {
-                'капустная совка': 'Вредитель: капустная совка\nРекомендация: опрыскивание Bacillus thuringiensis.',
-                'рапсовый цветоед': 'Вредитель: рапсовый цветоед\nРекомендация: опрыскивание тиаклопридом до начала цветения.',
-                'белая гниль': 'Болезнь: белая гниль\nРекомендация: обработка боскалидом и удаление пораженных растений.',
-                'рапсовый пилильщик': 'Вредитель: рапсовый пилильщик\nРекомендация: опрыскивание лямбда-цигалотрином в период активности личинок.'
+                'капустная совка': { diagnosis: 'Вредитель: капустная совка', recommendation: 'Опрыскивание Bacillus thuringiensis.' },
+                'рапсовый цветоед': { diagnosis: 'Вредитель: рапсовый цветоед', recommendation: 'Опрыскивание тиаклопридом до начала цветения.' },
+                'белая гниль': { diagnosis: 'Болезнь: белая гниль', recommendation: 'Обработка боскалидом и удаление пораженных растений.' },
+                'рапсовый пилильщик': { diagnosis: 'Вредитель: рапсовый пилильщик', recommendation: 'Опрыскивание лямбда-цигалотрином в период активности личинок.' }
             },
             'соя': {
-                'стеблевой долгоносик': 'Вредитель: стеблевой долгоносик\nРекомендация: опрыскивание хлорпирифосом + севооборот.',
-                'фитофтороз': 'Болезнь: фитофтороз\nРекомендация: обработка металаксилом и севооборот.',
-                'паутинный клещ': 'Вредитель: паутинный клещ\nРекомендация: опрыскивание абамектином.',
-                'аскохитоз': 'Болезнь: аскохитоз\nРекомендация: обработка хлороталонилом и соблюдение севооборота.'
+                'стеблевой долгоносик': { diagnosis: 'Вредитель: стеблевой долгоносик', recommendation: 'Опрыскивание хлорпирифосом + севооборот.' },
+                'фитофтороз': { diagnosis: 'Болезнь: фитофтороз', recommendation: 'Обработка металаксилом и севооборот.' },
+                'паутинный клещ': { diagnosis: 'Вредитель: паутинный клещ', recommendation: 'Опрыскивание абамектином.' },
+                'аскохитоз': { diagnosis: 'Болезнь: аскохитоз', recommendation: 'Обработка хлороталонилом и соблюдение севооборота.' }
             }
         };
 
@@ -191,7 +192,7 @@
             for (const disease in diseases) {
                 for (const question of diseases[disease]) {
                     const symptom = question.split('?')[0].split(' ').slice(2).join(' ').trim();
-                    questions.push({ question: question, symptom: symptom, disease: disease });
+                    questions.push({ question: question, symptom: symptom, disease: disease, crop: selectedCrop });
                 }
             }
             currentQuestionIndex = 0;
@@ -215,8 +216,8 @@
         function answerQuestion(answer) {
             if (answer === 'yes') {
                 const symptom = questions[currentQuestionIndex].symptom;
-                yesAnswers.add(symptom);
-                console.log(`Добавлен симптом: ${symptom} (болезнь: ${questions[currentQuestionIndex].disease})`);
+                yesAnswers.add(`${selectedCrop}:${symptom}`);
+                console.log(`Добавлен симптом: ${symptom} (культура: ${selectedCrop}, болезнь: ${questions[currentQuestionIndex].disease})`);
             }
             currentQuestionIndex++;
             showQuestion();
@@ -234,7 +235,8 @@
 
             // Подсчитываем совпадения симптомов
             for (const question of questions) {
-                if (yesAnswers.has(question.symptom)) {
+                const symptomKey = `${question.crop}:${question.symptom}`;
+                if (yesAnswers.has(symptomKey)) {
                     probabilities[question.disease]++;
                     totalMatches++;
                 }
@@ -272,7 +274,7 @@
                 }
             }
             console.log('Выбранный диагноз:', likelyDisease, 'с вероятностью:', maxProb);
-            return likelyDisease ? diagnosisMap[selectedCrop][likelyDisease] : "Диагноз не определён. Проверьте, соответствуют ли симптомы одному из правил.";
+            return likelyDisease ? { diagnosis: diagnosisMap[selectedCrop][likelyDisease].diagnosis, recommendation: diagnosisMap[selectedCrop][likelyDisease].recommendation } : { diagnosis: "Диагноз не определён. Проверьте, соответствуют ли симптомы одному из правил.", recommendation: "Попробуйте уточнить симптомы или проконсультироваться со специалистом." };
         }
 
         function showResults() {
@@ -280,13 +282,13 @@
             document.getElementById('results').style.display = 'block';
             document.getElementById('results').classList.add('fade-in');
             document.getElementById('result-crop').textContent = selectedCrop;
-            document.getElementById('result-symptoms').textContent = yesAnswers.size > 0 ? Array.from(yesAnswers).join(', ') : 'Нет подтверждённых симптомов';
+            document.getElementById('result-symptoms').textContent = yesAnswers.size > 0 ? Array.from(yesAnswers).map(s => s.split(':')[1]).join(', ') : 'Нет подтверждённых симптомов';
             
             const probabilities = calculateProbabilities();
-            const diagnosis = getDiagnosis(probabilities);
-            document.getElementById('result-diagnosis').textContent = diagnosis;
+            const result = getDiagnosis(probabilities);
+            document.getElementById('result-diagnosis').textContent = result.diagnosis;
+            document.getElementById('result-recommendation').textContent = result.recommendation;
 
-            // Показываем все болезни на диаграмме, даже с нулевой вероятностью
             const labels = Object.keys(probabilities);
             const data = Object.values(probabilities);
             const ctx = document.getElementById('probability-chart').getContext('2d');

@@ -2,7 +2,7 @@ body {
     font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background: url('https://kartinki.pics/uploads/posts/2021-07/1627191189_19-kartinkin-com-p-fon-agronomiya-krasivo-25.jpg') no-repeat center center fixed;
+    background: url('https://example.com/images/background.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #e0e0e0;
     position: relative;
@@ -26,7 +26,6 @@ body::before {
     z-index: -1;
 }
 
-/* Запасной градиент, если изображение не загрузится */
 body.no-background, body[style*="background-image: none"] {
     background: linear-gradient(135deg, #1a2a3c, #2c3e50) no-repeat center center fixed;
     background-size: cover;
@@ -55,7 +54,7 @@ h1 {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(168, 224, 99, 0.3);
     animation: fadeIn 0.8s ease-in-out;
-    backdrop-filter: blur(5px); /* Эффект стекла для минимализма */
+    backdrop-filter: blur(5px);
 }
 
 .result-container h2 {
@@ -187,6 +186,11 @@ button.submit-btn:active {
     background-color: rgba(40, 40, 40, 0.7);
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.recommendation {
+    font-weight: bold;
+    color: #a8e063;
 }
 
 .fade-in {
