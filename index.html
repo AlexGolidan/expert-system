@@ -15,9 +15,9 @@
         <h2>Выбор культуры</h2>
         <label for="crop">Выберите культуру:</label>
         <select id="crop" required>
-            <option value="Подсолнечник">Подсолнечник</option>
-            <option value="Рапс">Рапс</option>
-            <option value="Соя">Соя</option>
+            <option value="подсолнечник">Подсолнечник</option>
+            <option value="рапс">Рапс</option>
+            <option value="соя">Соя</option>
         </select>
         <button class="submit-btn" onclick="startQuestions()">Продолжить <i class="fas fa-arrow-right"></i></button>
     </div>
@@ -47,7 +47,7 @@
         let yesAnswers = new Set();
         let questions = [];
         const diseaseMap = {
-            'Подсолнечник': {
+            'подсолнечник': {
                 'тля': [
                     'На листьях видны мелкие зеленые или черные насекомые?',
                     'Листья скручиваются или становятся липкими?',
@@ -85,7 +85,7 @@
                     'Растения начинают ломаться у основания?'
                 ]
             },
-            'Рапс': {
+            'рапс': {
                 'капустная совка': [
                     'На листьях видны большие отверстия от гусениц?',
                     'Обнаружены гусеницы зеленого или бурого цвета?',
@@ -123,7 +123,7 @@
                     'Растения теряют листву в жаркую погоду?'
                 ]
             },
-            'Соя': {
+            'соя': {
                 'стеблевой долгоносик': [
                     'Стебли растений имеют следы проколов или отверстий?',
                     'Обнаружены личинки внутри стеблей?',
@@ -164,19 +164,19 @@
         };
 
         const diagnosisMap = {
-            'Подсолнечник': {
+            'подсолнечник': {
                 'тля': 'Вредитель: тля\nРекомендация: опрыскивание имидаклопридом в период вегетации.',
                 'подсолнечниковая огневка': 'Вредитель: подсолнечниковая огневка\nРекомендация: опрыскивание дельтаметрином в начале цветения.',
                 'альтернариоз': 'Болезнь: альтернариоз\nРекомендация: опрыскивание азоксистробином.',
                 'склеротиниоз': 'Болезнь: склеротиниоз\nРекомендация: обработка тебуконазолом и удаление пораженных частей.'
             },
-            'Рапс': {
+            'рапс': {
                 'капустная совка': 'Вредитель: капустная совка\nРекомендация: опрыскивание Bacillus thuringiensis.',
                 'рапсовый цветоед': 'Вредитель: рапсовый цветоед\nРекомендация: опрыскивание тиаклопридом до начала цветения.',
                 'белая гниль': 'Болезнь: белая гниль\nРекомендация: обработка боскалидом и удаление пораженных растений.',
                 'рапсовый пилильщик': 'Вредитель: рапсовый пилильщик\nРекомендация: опрыскивание лямбда-цигалотрином в период активности личинок.'
             },
-            'Соя': {
+            'соя': {
                 'стеблевой долгоносик': 'Вредитель: стеблевой долгоносик\nРекомендация: опрыскивание хлорпирифосом + севооборот.',
                 'фитофтороз': 'Болезнь: фитофтороз\nРекомендация: обработка металаксилом и севооборот.',
                 'паутинный клещ': 'Вредитель: паутинный клещ\nРекомендация: опрыскивание абамектином.',
@@ -190,7 +190,8 @@
             const diseases = diseaseMap[selectedCrop];
             for (const disease in diseases) {
                 for (const question of diseases[disease]) {
-                    questions.push({ question: question, symptom: question.split('?')[0].split(' ').slice(2).join(' ') });
+                    const symptom = question.split('?')[0].split(' ').slice(2).join(' ').trim();
+                    questions.push({ question: question, symptom: symptom, disease: disease });
                 }
             }
             currentQuestionIndex = 0;
@@ -213,7 +214,9 @@
 
         function answerQuestion(answer) {
             if (answer === 'yes') {
-                yesAnswers.add(questions[currentQuestionIndex].symptom);
+                const symptom = questions[currentQuestionIndex].symptom;
+                yesAnswers.add(symptom);
+                console.log(`Добавлен симптом: ${symptom} (болезнь: ${questions[currentQuestionIndex].disease})`);
             }
             currentQuestionIndex++;
             showQuestion();
@@ -224,13 +227,20 @@
             const probabilities = {};
             let totalMatches = 0;
 
+            // Инициализируем вероятности для всех болезней
             for (const disease in diseases) {
-                const diseaseQuestions = diseases[disease];
-                const matches = diseaseQuestions.filter(question => yesAnswers.has(question.split('?')[0].split(' ').slice(2).join(' '))).length;
-                probabilities[disease] = matches;
-                totalMatches += matches;
+                probabilities[disease] = 0;
             }
 
+            // Подсчитываем совпадения симптомов
+            for (const question of questions) {
+                if (yesAnswers.has(question.symptom)) {
+                    probabilities[question.disease]++;
+                    totalMatches++;
+                }
+            }
+
+            // Преобразуем совпадения в проценты
             if (totalMatches > 0) {
                 for (const disease in probabilities) {
                     probabilities[disease] = (probabilities[disease] / totalMatches) * 100;
@@ -246,7 +256,9 @@
                     probabilities[disease] = baseProbability;
                 }
             }
-            console.log('Вероятности:', probabilities); // Отладка
+
+            console.log('Yes Answers:', Array.from(yesAnswers));
+            console.log('Вероятности:', probabilities);
             return probabilities;
         }
 
@@ -259,6 +271,7 @@
                     likelyDisease = disease;
                 }
             }
+            console.log('Выбранный диагноз:', likelyDisease, 'с вероятностью:', maxProb);
             return likelyDisease ? diagnosisMap[selectedCrop][likelyDisease] : "Диагноз не определён. Проверьте, соответствуют ли симптомы одному из правил.";
         }
 
@@ -273,11 +286,9 @@
             const diagnosis = getDiagnosis(probabilities);
             document.getElementById('result-diagnosis').textContent = diagnosis;
 
-            const filteredProbabilities = Object.fromEntries(
-                Object.entries(probabilities).filter(([_, prob]) => prob > 0)
-            );
-            const labels = Object.keys(filteredProbabilities);
-            const data = Object.values(filteredProbabilities);
+            // Показываем все болезни на диаграмме, даже с нулевой вероятностью
+            const labels = Object.keys(probabilities);
+            const data = Object.values(probabilities);
             const ctx = document.getElementById('probability-chart').getContext('2d');
             new Chart(ctx, {
                 type: 'pie',
