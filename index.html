@@ -225,7 +225,8 @@
             let totalMatches = 0;
 
             for (const disease in diseases) {
-                const matches = diseases[disease].filter(question => yesAnswers.has(question.split('?')[0].split(' ').slice(2).join(' '))).length;
+                const diseaseQuestions = diseases[disease];
+                const matches = diseaseQuestions.filter(question => yesAnswers.has(question.split('?')[0].split(' ').slice(2).join(' '))).length;
                 probabilities[disease] = matches;
                 totalMatches += matches;
             }
@@ -234,7 +235,7 @@
                 for (const disease in probabilities) {
                     probabilities[disease] = (probabilities[disease] / totalMatches) * 100;
                     if (probabilities[disease] === 100) {
-                        probabilities[disease] = 99;
+                        probabilities[disease] = 99; // Избегаем 100% для визуальной индикации
                     }
                     probabilities[disease] = Math.round(probabilities[disease] * 100) / 100;
                 }
@@ -245,11 +246,12 @@
                     probabilities[disease] = baseProbability;
                 }
             }
+            console.log('Вероятности:', probabilities); // Отладка
             return probabilities;
         }
 
         function getDiagnosis(probabilities) {
-            let maxProb = 0;
+            let maxProb = -1;
             let likelyDisease = null;
             for (const disease in probabilities) {
                 if (probabilities[disease] > maxProb) {
