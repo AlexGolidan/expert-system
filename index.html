@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Экспертная система</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 <body>
     <h1><i class="fas fa-leaf"></i> Экспертная система</h1>
-    <div class="form-container" id="crop-selection">
+    <div class="result-container" id="crop-selection">
         <label for="crop">Выберите культуру:</label>
         <select id="crop" required>
             <option value="подсолнечник">Подсолнечник</option>
             <option value="рапс">Рапс</option>
             <option value="соя">Соя</option>
         </select>
-        <button onclick="startQuestions()" class="submit-icon">Продолжить <i class="fas fa-arrow-right"></i></button>
+        <button class="submit-btn" onclick="startQuestions()">Продолжить <i class="fas fa-arrow-right"></i></button>
     </div>
 
     <div class="result-container" id="questions" style="display: none;">
@@ -47,22 +47,94 @@
         let questions = [];
         const diseaseMap = {
             'подсолнечник': {
-                'тля': ['желтые пятна', 'скручивание листьев'],
-                'подсолнечниковая огневка': ['поврежденные семена', 'личинки в корзинках'],
-                'альтернариоз': ['темные пятна на листьях', 'желтый ореол'],
-                'склеротиниоз': ['мягкие гниющие пятна', 'белый налет']
+                'тля': [
+                    'На листьях видны мелкие зеленые или черные насекомые?',
+                    'Листья скручиваются или становятся липкими?',
+                    'Появились желтые пятна на нижней стороне листьев?',
+                    'Растения выглядят вялыми из-за ослабления стеблей?',
+                    'На стеблях заметны выделения липкой росы?'
+                ],
+                'подсолнечниковая огневка': [
+                    'В корзинках подсолнечника видны поврежденные семена?',
+                    'Обнаружены личинки в головках подсолнечника?',
+                    'Листья имеют следы прожорливости насекомых?',
+                    'Появились дыры в лепестках или семенах?',
+                    'Корзинки выглядят деформированными или недоразвитыми?'
+                ],
+                'альтернариоз': [
+                    'На листьях видны темные пятна с желтым ореолом?',
+                    'Листья начинают преждевременно желтеть и опадать?',
+                    'Пятна на стеблях имеют концентрические кольца?',
+                    'Поражены нижние листья более сильно, чем верхние?',
+                    'На семенах заметны черные или серые пятна?'
+                ],
+                'склеротиниоз': [
+                    'На стеблях и головках видны мягкие гниющие пятна?',
+                    'Появился белый или серый налет на пораженных участках?',
+                    'Растения увядают даже при нормальном поливе?',
+                    'Внутри стеблей заметны черные склероции?',
+                    'Пораженные части растения имеют неприятный запах?'
+                ]
             },
             'рапс': {
-                'капустная совка': ['отверстия в листьях', 'гусеницы'],
-                'рапсовый цветоед': ['поврежденные бутоны', 'наличие жуков'],
-                'белая гниль': ['белый налет на стеблях', 'увядание растений'],
-                'рапсовый пилильщик': ['объеденные листья', 'личинки с черной головой']
+                'капустная совка': [
+                    'На листьях видны большие отверстия от гусениц?',
+                    'Обнаружены гусеницы зеленого или бурого цвета?',
+                    'Листья имеют следы прожорливости по краям?',
+                    'Появились поврежденные бутоны или цветки?',
+                    'Растения выглядят обглоданными на нижнем ярусе?'
+                ],
+                'рапсовый цветоед': [
+                    'Бутоны растений повреждены или опадают преждевременно?',
+                    'На растениях видны жуки с металлическим блеском?',
+                    'Цветки имеют следы мелких укусов?',
+                    'Появились пустые или недоразвитые стручки?',
+                    'Листья покрыты мелкими отверстиями от жуков?'
+                ],
+                'белая гниль': [
+                    'На стеблях виден белый налет или пушистый мицелий?',
+                    'Растения увядают и становятся водянистыми?',
+                    'На корнях заметны темные пятна или гниль?',
+                    'Пораженные части имеют мягкую текстуру?',
+                    'Появился запах плесени на растениях?'
+                ],
+                'рапсовый пилильщик': [
+                    'Листья обглоданы с верхней стороны?',
+                    'Обнаружены личинки с черной головой на растениях?',
+                    'Появились следы скелетирования листьев?',
+                    'Растения выглядят ослабленными из-за потери листвы?',
+                    'На стеблях видны мелкие повреждения от личинок?'
+                ]
             },
             'соя': {
-                'стеблевой долгоносик': ['поврежденные стебли', 'личинки внутри'],
-                'фитофтороз': ['бурые пятна на листьях', 'увядание растений'],
-                'паутинный клещ': ['мелкие желтые пятна', 'паутина'],
-                'аскохитоз': ['серо-белые пятна', 'черные точки']
+                'стеблевой долгоносик': [
+                    'Стебли растений имеют следы проколов или отверстий?',
+                    'Обнаружены личинки внутри стеблей?',
+                    'Растения ломаются из-за слабости стеблей?',
+                    'Появились признаки увядания на отдельных растениях?',
+                    'На поверхности стеблей видны мелкие жучки?'
+                ],
+                'фитофтороз': [
+                    'На листьях видны бурые пятна с серым налетом?',
+                    'Растения увядают даже при достаточном увлажнении?',
+                    'Корни имеют черный или коричневый оттенок?',
+                    'Появились водянистые пятна на стеблях?',
+                    'Листья желтеют и опадают преждевременно?'
+                ],
+                'паутинный клещ': [
+                    'На нижней стороне листьев видна паутина?',
+                    'Появились мелкие желтые или белые пятна на листьях?',
+                    'Листья выглядят сухими и скрученными?',
+                    'Обнаружены мелкие движущиеся точки на растениях?',
+                    'Поражение начинается с нижних листьев?'
+                ],
+                'аскохитоз': [
+                    'На листьях видны серо-белые пятна с черными точками?',
+                    'Появились сухие пятна на стеблях и бобах?',
+                    'Листья имеют признаки преждевременного увядания?',
+                    'На семенах заметны темные или черные пятна?',
+                    'Растения имеют признаки ослабления роста?'
+                ]
             }
         };
 
@@ -92,15 +164,15 @@
             questions = [];
             const diseases = diseaseMap[selectedCrop];
             for (const disease in diseases) {
-                for (const symptom of diseases[disease]) {
-                    questions.push({ question: `У ${selectedCrop} имеются ${symptom}?`, symptom });
+                for (const question of diseases[disease]) {
+                    questions.push({ question: question, symptom: question.split('?')[0].split(' ').slice(2).join(' ') });
                 }
             }
-            questions = [...new Map(questions.map(item => [item.symptom, item])).values()]; // Удаляем дубликаты
             currentQuestionIndex = 0;
             yesAnswers.clear();
             document.getElementById('crop-selection').style.display = 'none';
             document.getElementById('questions').style.display = 'block';
+            document.getElementById('questions').classList.add('fade-in');
             document.getElementById('total-questions').textContent = questions.length;
             showQuestion();
         }
@@ -128,7 +200,7 @@
             let totalMatches = 0;
 
             for (const disease in diseases) {
-                const matches = diseases[disease].filter(symptom => yesAnswers.has(symptom)).length;
+                const matches = diseases[disease].filter(question => yesAnswers.has(question.split('?')[0].split(' ').slice(2).join(' '))).length;
                 probabilities[disease] = matches;
                 totalMatches += matches;
             }
@@ -166,6 +238,7 @@
         function showResults() {
             document.getElementById('questions').style.display = 'none';
             document.getElementById('results').style.display = 'block';
+            document.getElementById('results').classList.add('fade-in');
             document.getElementById('result-crop').textContent = selectedCrop;
             document.getElementById('result-symptoms').textContent = yesAnswers.size > 0 ? Array.from(yesAnswers).join(', ') : 'Нет подтверждённых симптомов';
             
@@ -207,6 +280,7 @@
         function restart() {
             document.getElementById('results').style.display = 'none';
             document.getElementById('crop-selection').style.display = 'block';
+            document.getElementById('crop-selection').classList.add('fade-in');
             currentQuestionIndex = 0;
             yesAnswers.clear();
             questions = [];

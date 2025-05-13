@@ -7,6 +7,10 @@ body {
     color: #333;
     position: relative;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 body::before {
@@ -27,7 +31,7 @@ body.no-background {
 h1 {
     color: #fff;
     text-align: center;
-    margin: 30px 0;
+    margin: 20px 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     font-size: 2.5em;
     animation: fadeInDown 1s ease-in-out;
@@ -40,7 +44,7 @@ h1 {
     flex-direction: column;
     align-items: center;
     max-width: 600px;
-    margin: 0 auto;
+    width: 90%;
     padding: 30px;
     background-color: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -156,6 +160,7 @@ button.submit-btn:active {
 
 .chart-container {
     max-width: 400px;
+    width: 100%;
     margin: 20px auto;
     padding: 15px;
     background-color: rgba(255, 255, 255, 0.8);
@@ -202,5 +207,10 @@ button.submit-btn:active {
         width: calc(50% - 20px);
         margin: 15px 10px;
         font-size: 16px;
+    }
+
+    .chart-container {
+        max-width: 300px;
+        width: 100%;
     }
 }
